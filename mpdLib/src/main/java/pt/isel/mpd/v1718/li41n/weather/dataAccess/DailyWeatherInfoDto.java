@@ -1,14 +1,10 @@
-package pt.isel.mpd.v1718.li41n.weather.domain;
+package pt.isel.mpd.v1718.li41n.weather.dataAccess;
 
-import pt.isel.mpd.v1718.li41n.weather.dataAccess.DailyWeatherInfoDto;
-
-import java.util.Collection;
-
-public class DailyWeatherInfo {
+public class DailyWeatherInfoDto {
     private int maxTemp;
     private int minTemp;
 
-    public DailyWeatherInfo(int maxTemp, int minTemp) {
+    public DailyWeatherInfoDto(int maxTemp, int minTemp) {
         this.maxTemp = maxTemp;
         this.minTemp = minTemp;
     }

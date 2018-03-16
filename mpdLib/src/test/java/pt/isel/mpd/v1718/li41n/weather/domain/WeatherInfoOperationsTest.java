@@ -1,6 +1,7 @@
 package pt.isel.mpd.v1718.li41n.weather.domain;
 
 import org.junit.Test;
+import pt.isel.mpd.v1718.li41n.weather.dataAccess.MemoryWeatherDataSource;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -12,16 +13,17 @@ public class WeatherInfoOperationsTest {
 
     public static final int MIN_ALLOWED_TEMP = -40;
     public static final int MAX_ALLOWED_TEMPERATURE = 50;
+    public static final String LOCATION = "Lisbon";
 
     @Test
     public void shouldGetDailyWeatherInfoBetweenTwoDates() {
         // Arrange
-        WeatherInfoOperations wiOper = null;
+        WeatherInfoOperations wiOper = new WeatherInfoOperationsImpl(new MemoryWeatherDataSource());
         LocalDate start = null;
         LocalDate end = null;
 
         // Act
-        Collection<DailyWeatherInfo> dwiColl = wiOper.getDailyWeatherInfoBetween(start, end);
+        Collection<DailyWeatherInfo> dwiColl = wiOper.getDailyWeatherInfoBetween(LOCATION, start, end);
 
         // Assert
         assertNotNull(dwiColl);
