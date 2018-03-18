@@ -1,4 +1,6 @@
-package pt.isel.mpd.v1718.li41n.weather.domain;
+package pt.isel.mpd.v1718.li41n.queries.eager;
+
+import pt.isel.mpd.v1718.li41n.queries.Queries;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,9 +9,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class WeatherQueries {
+public class QueriesEager extends Queries {
 
-    public static <T> Collection<T> filter(Collection<T> coll, Predicate<T> pred) {
+    public static <T> Iterable<T> filter(Iterable<T> coll, Predicate<T> pred) {
         Collection<T> resColl = new ArrayList<>();
         for (T t : coll) {
             if(pred.test(t)) {
@@ -44,6 +46,29 @@ public class WeatherQueries {
         return map;
     }
 
+
+    public static <T> Iterable<T> limit(Iterable<T> coll, int limit) {
+        Collection<T> resColl = new ArrayList<>();
+        for (T t : coll) {
+            if(--limit == 0) {
+                break;
+            }
+            resColl.add(t);
+        }
+        return resColl;
+    }
+
+    public static <T> Iterable<T> skip(Iterable<T> coll, int toSkip) {
+        Collection<T> resColl = new ArrayList<>();
+
+        for (T t : coll) {
+            if(--toSkip >= 0) {
+                continue;
+            }
+            resColl.add(t);
+        }
+        return resColl;
+    }
 
 
 }
