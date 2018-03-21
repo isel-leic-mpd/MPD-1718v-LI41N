@@ -1,37 +1,25 @@
 package pt.isel.mpd.v1718.li41n.queries.lazy.iterators;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class FilterIterator<T> implements Iterator<T> {
-    private final Iterator<T> prevIterator;
+public class FilterIterator<T> extends BaseIterator<T> {
     private Predicate<T> pred;
-    private T next = null;
 
 
-    public FilterIterator(Iterator prevIterator, Predicate<T> pred) {
-        this.prevIterator = prevIterator;
+    public FilterIterator(Iterator<T> prevIterator, Predicate<T> pred) {
+        super(prevIterator);
         this.pred = pred;
     }
 
     @Override
-    public boolean hasNext() {
-        while (prevIterator.hasNext()) {
-            if(pred.test(next = prevIterator.next())) {
-                return true;
+    public T tryAdvance() {
+        T nextElement = null;
+        while (hasNextFromPrev()) {
+            if(pred.test(nextElement = nextFromPrev())) {
+                break;
             }
         }
-        next = null;
-        return false;
-    }
-
-    @Override
-    public T next() {
-        if(next == null) {
-            throw new NoSuchElementException();
-        }
-        return next;
+        return nextElement;
     }
 }

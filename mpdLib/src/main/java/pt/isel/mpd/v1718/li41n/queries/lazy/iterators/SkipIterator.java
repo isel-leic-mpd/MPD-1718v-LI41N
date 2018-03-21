@@ -1,33 +1,18 @@
 package pt.isel.mpd.v1718.li41n.queries.lazy.iterators;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-public class SkipIterator<T> implements Iterator<T> {
-    private final Iterator<T> prevIterator;
+public class SkipIterator<T> extends BaseIterator<T>  {
     private int skip;
-    private T next = null;
 
 
-    public SkipIterator(Iterator prevIterator, int skip) {
-        this.prevIterator = prevIterator;
+    public SkipIterator(Iterator<T> prevIterator, int skip) {
+        super(prevIterator);
         this.skip = skip;
     }
 
     @Override
-    public boolean hasNext() {
-        if (--skip >= 0 && prevIterator.hasNext()) {
-            next = prevIterator.next();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public T next() {
-        if (next == null) {
-            throw new NoSuchElementException();
-        }
-        return next;
+    public T tryAdvance() {
+        return --skip >= 0 && hasNextFromPrev() ? nextFromPrev() : null;
     }
 }
