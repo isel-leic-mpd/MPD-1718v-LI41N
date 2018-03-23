@@ -1,7 +1,6 @@
 package pt.isel.mpd.v1718.li41n.queries.lazy;
 
 
-import pt.isel.mpd.v1718.li41n.queries.Queries;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.FilterIterator;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.LimitIterator;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.MapIterator;
@@ -12,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class QueriesLazy extends Queries {
+public class QueriesLazy  {
 
     public static <T> Iterable<T> filter(Iterable<T> iter, Predicate<T> pred) {
         return new QueriesIterable<T>(() -> new FilterIterator(iter.iterator(), pred));

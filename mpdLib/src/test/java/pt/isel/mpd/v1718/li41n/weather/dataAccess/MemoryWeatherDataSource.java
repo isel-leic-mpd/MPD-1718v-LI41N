@@ -11,8 +11,8 @@ public class MemoryWeatherDataSource implements WeatherDataSource {
 
     public MemoryWeatherDataSource() {
         data = new LinkedList<>();
-        data.add(new DailyWeatherInfoDto(15, 2));
-        data.add(new DailyWeatherInfoDto(13, 10));
+        data.add(new DailyWeatherInfoDto(15, 2, LocalDate.of(2016, 03, 12)));
+        data.add(new DailyWeatherInfoDto(13, 10, LocalDate.of(2016, 03, 12)));
     }
 
     @Override

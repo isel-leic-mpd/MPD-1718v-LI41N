@@ -1,6 +1,5 @@
 package pt.isel.mpd.v1718.li41n.queries.eager;
 
-import pt.isel.mpd.v1718.li41n.queries.Queries;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class QueriesEager extends Queries {
+public class QueriesEager {
 
     public static <T> Iterable<T> filter(Iterable<T> coll, Predicate<T> pred) {
         Collection<T> resColl = new ArrayList<>();
