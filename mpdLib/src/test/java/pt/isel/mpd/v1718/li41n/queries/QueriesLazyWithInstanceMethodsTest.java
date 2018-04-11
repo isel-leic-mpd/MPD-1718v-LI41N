@@ -4,23 +4,25 @@ package pt.isel.mpd.v1718.li41n.queries;
 
 import org.junit.Test;
 import pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazy;
+import pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazyWithInstanceMethods;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazyWithInstanceMethods.of;
 
-public class QueriesLazyTest {
+public class QueriesLazyWithInstanceMethodsTest {
 
-    private List<String> strings = asList("Sport", "Lisboa", "e", "Benfica");
+    private QueriesLazyWithInstanceMethods<String> strings = of(asList("Sport", "Lisboa", "e", "Benfica"));
 
     @Test
     public void shouldFilter() {
         // Arrange
 
         // Act
-        final Iterable<String> filteredStrings = QueriesLazy.filter(strings, s -> s.length() > 2);
+        final Iterable<String> filteredStrings = strings.filter(s -> s.length() > 2);
 
 
         // Assert
@@ -33,17 +35,15 @@ public class QueriesLazyTest {
         // Arrange
 
         // Act
-        final Iterable<Integer> stringSizes = QueriesLazy.map(strings, s -> s.length());
+        final Iterable<Integer> stringSizes = strings.map(s -> s.length());
 
 
         // Assert
-        assertEquals(strings.size(), Queries.count(stringSizes));
+        assertIterableEquals(asList(5,6, 1, 7), stringSizes);
 
-        // Verify sizes
-        int i = 0;
-        for (Integer size : stringSizes) {
-            assertEquals(strings.get(i++).length(), (int)size);
-        }
+
+
+
     }
 
     @Test
@@ -56,13 +56,7 @@ public class QueriesLazyTest {
 
 
         // Assert
-        assertEquals(TO_TAKE, Queries.count(stringsTaken));
-
-        // Verify sizes
-        int i = 0;
-        for (String str : stringsTaken) {
-            assertEquals(strings.get(i++), str);
-        }
+        assertIterableEquals(asList("Sport", "Lisboa"), stringsTaken);
     }
 
     @Test
@@ -73,15 +67,10 @@ public class QueriesLazyTest {
         final int TO_SKIP = 3;
         final Iterable<String> stringsAfterSkipped = QueriesLazy.skip(strings, TO_SKIP);
 
-
         // Assert
-        assertEquals(strings.size()-TO_SKIP, Queries.count(stringsAfterSkipped));
+        assertIterableEquals(asList("Benfica"), stringsAfterSkipped);
 
-        // Verify sizes
-        int i = TO_SKIP;
-        for (String str : stringsAfterSkipped) {
-            assertEquals(strings.get(i++), str);
-        }
+
     }
 
     @Test
@@ -90,15 +79,14 @@ public class QueriesLazyTest {
         List<String> strings = asList("Sport", "Lisboa", "e", "Benfica", "Sport", "Lisboa", "e", "Benfica", "Sport", "Lisboa", "e", "Benfica", "Sport", "Lisboa", "e", "Benfica");
 
         // Act
-        final Iterable<Integer> res = QueriesLazy.map(
-                QueriesLazy.limit(
-                        QueriesLazy.skip(strings, 3),
-                        3),
-                String::length);
-
+        Iterable<Integer> res = of(strings)
+                .skip(3)
+                .limit(3)
+                .map(String::length)
+                .limit(2);
 
         // Assert
-        assertIterableEquals(asList(7,5,6), res);
+        assertIterableEquals(asList(7,5), res);
     }
 
 }

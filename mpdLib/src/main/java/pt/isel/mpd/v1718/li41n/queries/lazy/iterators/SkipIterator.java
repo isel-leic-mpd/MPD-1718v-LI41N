@@ -17,6 +17,13 @@ public class SkipIterator<T> extends BaseIterator<T>  {
 
     @Override
     public Optional<T> tryAdvance() {
-        return --skip >= 0 && hasNextFromPrev() ? of(nextFromPrev()) : empty();
+        while (skip != 0) {
+            if(!hasNextFromPrev()) {
+                return empty();
+            }
+            nextFromPrev();
+            --skip;
+        }
+        return hasNextFromPrev() ? of(nextFromPrev()) : empty();
     }
 }
