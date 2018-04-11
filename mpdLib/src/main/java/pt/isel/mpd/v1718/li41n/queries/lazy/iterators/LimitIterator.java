@@ -1,6 +1,10 @@
 package pt.isel.mpd.v1718.li41n.queries.lazy.iterators;
 
 import java.util.Iterator;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 public class LimitIterator<T> extends BaseIterator<T> {
     private int limit;
@@ -11,7 +15,7 @@ public class LimitIterator<T> extends BaseIterator<T> {
     }
 
     @Override
-    public T tryAdvance() {
-        return --limit >= 0 && hasNextFromPrev() ? nextFromPrev() : null;
+    public Optional<T> tryAdvance() {
+        return --limit >= 0 && hasNextFromPrev() ? of(nextFromPrev()) : empty();
     }
 }

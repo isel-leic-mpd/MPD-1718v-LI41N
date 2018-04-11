@@ -2,29 +2,37 @@ package pt.isel.mpd.v1718.li41n.queries.lazy.iterators;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
 
 public abstract class BaseIterator<T> implements Iterator<T> {
-    private final Iterator<?> prevIterator;
-    protected T nextElement = null;
+    protected final Iterator<?> prevIterator;
+    protected Optional<T> curr;
 
     public BaseIterator(Iterator<?> prevIterator) {
         this.prevIterator = prevIterator;
+        curr = empty();
     }
 
     @Override
     public final boolean hasNext() {
-        nextElement = tryAdvance();
-        return nextElement != null;
+        if(!curr.isPresent()) {
+            curr = tryAdvance();
+        }
+        return curr.isPresent();
     }
 
 
 
     @Override
     public final T next() {
-        if (nextElement == null) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        return nextElement;
+        T ret = curr.get();
+        curr = empty();
+        return ret;
     }
 
     protected  T nextFromPrev() {
@@ -39,5 +47,5 @@ public abstract class BaseIterator<T> implements Iterator<T> {
         return (R)prevIterator.next();
     }
 
-    protected abstract T tryAdvance();
+    protected abstract Optional<T> tryAdvance();
 }
