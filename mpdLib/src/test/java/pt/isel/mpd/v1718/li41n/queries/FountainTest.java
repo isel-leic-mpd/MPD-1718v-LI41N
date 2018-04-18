@@ -3,19 +3,19 @@ package pt.isel.mpd.v1718.li41n.queries;
 
 
 import org.junit.Test;
+import pt.isel.mpd.v1718.li41n.queries.lazy.FountainSource;
 import pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazy;
-import pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazyWithInstanceMethods;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static pt.isel.mpd.v1718.li41n.queries.lazy.QueriesLazyWithInstanceMethods.of;
+import static pt.isel.mpd.v1718.li41n.queries.lazy.FountainSource.of;
 
-public class QueriesLazyWithInstanceMethodsTest {
+public class FountainTest {
 
-    private QueriesLazyWithInstanceMethods<String> strings = of(asList("Sport", "Lisboa", "e", "Benfica"));
+    private FountainSource<String> strings = of(asList("Sport", "Lisboa", "e", "Benfica"));
 
     @Test
     public void shouldFilter() {
