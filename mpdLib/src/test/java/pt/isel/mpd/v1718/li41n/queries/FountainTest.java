@@ -40,10 +40,6 @@ public class FountainTest {
 
         // Assert
         assertIterableEquals(asList(5,6, 1, 7), stringSizes);
-
-
-
-
     }
 
     @Test
