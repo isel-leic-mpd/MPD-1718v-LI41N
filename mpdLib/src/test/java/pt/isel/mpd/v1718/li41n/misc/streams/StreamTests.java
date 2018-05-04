@@ -1,15 +1,21 @@
 package pt.isel.mpd.v1718.li41n.misc.streams;
 
 import org.junit.*;
+import pt.isel.mpd.v1718.li41n.stream.Queries;
 
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Spliterator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 public class StreamTests {
 
@@ -126,5 +132,38 @@ public class StreamTests {
         }
 
         return str.toString();
+    }
+
+
+    @Test
+    public void shouldCollapseEqualNeighborElements() {
+
+        final List<Integer> numbers = asList(1, 2, 2, 2, 3, 4, 2, 2, 1, 1);
+
+        final Stream<Integer> res = Queries.collapse(numbers.stream());
+
+        assertIterableEquals(asList(1,2,3,4,2,1), res.collect(toList()));
+
+
+    }
+
+    @Test
+    public void shouldCollapseEqualNeighborElements1() {
+
+        final List<Integer> numbers = asList(2, 2, 2);
+
+        final Stream<Integer> res = Queries.collapse(numbers.stream());
+
+        assertIterableEquals(asList(2), res.collect(toList()));
+    }
+
+    @Test
+    public void shouldCollapseEqualNeighborElements2() {
+
+        final List<Integer> numbers = asList(2, 2, 2, null, null);
+
+        final Stream<Integer> res = Queries.collapse(numbers.stream());
+
+        assertIterableEquals(asList(2, null), res.collect(toList()));
     }
 }
