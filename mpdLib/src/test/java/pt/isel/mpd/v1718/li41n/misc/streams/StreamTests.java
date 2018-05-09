@@ -6,9 +6,7 @@ import pt.isel.mpd.v1718.li41n.stream.Queries;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
@@ -165,5 +163,55 @@ public class StreamTests {
         final Stream<Integer> res = Queries.collapse(numbers.stream());
 
         assertIterableEquals(asList(2, null), res.collect(toList()));
+    }
+
+
+    @Test
+    public void shouldJoinStreamsWithAllMergedElements() {
+
+        final List<String> strings = asList("a", "ab", "abcd", "abc");
+        final List<Integer> numbers = asList(2, 1, 3, 4);
+
+        shouldMerge(strings, numbers, asList("a(1)", "ab(2)", "abcd(4)", "abc(3)"));
+    }
+
+
+    @Test
+    public void shouldJoinStreamsWithNoneMergedElements() {
+
+        final List<String> strings = asList("a", "ab", "abcd", "abc");
+        final List<Integer> numbers = asList(5,6,7);
+
+        shouldMerge(strings, numbers, asList("a()", "ab()", "abcd()", "abc()", "#(5)", "#(6)", "#(7)"));
+    }
+
+    @Test
+    public void shouldJoinStreamsWithSomeMergedElements() {
+
+        final List<String> strings = asList("a", "ab", "abcd", "abc");
+        final List<Integer> numbers = asList(3,4,5,6,7);
+
+        shouldMerge(strings, numbers, asList("a()", "ab()", "abcd(4)", "abc(3)", "#(5)", "#(6)", "#(7)"));
+    }
+
+    private void shouldMerge(List<String> strings, List<Integer> numbers, List<String> expected) {
+
+
+        final Stream<String> res = Queries.join(
+                strings.stream(),
+                numbers.stream(),
+                this::mapStringWithInteger,
+                String::length,
+                Function.identity()
+        );
+
+        assertIterableEquals(expected, res.collect(toList()));
+    }
+
+    private String mapStringWithInteger(String s, Integer i) {
+        String str1 = s == null ? "#" : s;
+        String str2 = i == null ? "" : i.toString();
+
+        return str1 + "(" + str2 + ")";
     }
 }

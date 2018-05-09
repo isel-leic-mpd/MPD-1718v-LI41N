@@ -1,10 +1,9 @@
 package pt.isel.mpd.v1718.li41n.stream;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -12,6 +11,12 @@ public class Queries {
     public static <T> Stream<T> collapse(Stream<T> src) {
         return StreamSupport.stream(new CollapseSpliterator(src.spliterator()), false);
     }
+
+
+    public static <T, U, K, R> Stream<R> join(Stream<T> str1, Stream<U> str2, BiFunction<T, U, R> mapper, Function<T, K> tkExtractor, Function<U, K> ukExtractor) {
+        return StreamSupport.stream(new JoinSpliterator(str1.spliterator(), str2.spliterator(), mapper, tkExtractor, ukExtractor), false);
+    }
+
 
     private static class CollapseSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
 
@@ -29,16 +34,97 @@ public class Queries {
             Optional<T> prevOld = prev;
             while (
                     src.tryAdvance(t -> {
-                        if(!prev.isPresent() || !Objects.equals(t, prev.get())) {
+                        if (!prev.isPresent() || !Objects.equals(t, prev.get())) {
                             action.accept(t);
                             prev = Optional.ofNullable(t);
                         }
                     })
-                    &&
-                    prevOld == prev
-             );
+                            &&
+                            prevOld == prev
+                    ) ;
             return prevOld != prev;
 
+        }
+    }
+
+    private static class JoinSpliterator<T, U, K, R> extends Spliterators.AbstractSpliterator<R> {
+        private final Spliterator<T> spliterator1;
+        private final Spliterator<U> spliterator2;
+        private final BiFunction<T, U, R> mapper;
+        private final Function<T, K> tkExtractor;
+        private final Function<U, K> ukExtractor;
+        private Map<K, Pair<T, U>> mappedValues;
+        private Spliterator<Pair<T, U>> mappedValuesSpliterator;
+
+
+        public JoinSpliterator(Spliterator<T> spliterator1, Spliterator<U> spliterator2, BiFunction<T, U, R> mapper, Function<T, K> tkExtractor, Function<U, K> ukExtractor) {
+            super(spliterator1.estimateSize()+spliterator2.estimateSize(), spliterator1.characteristics() & spliterator2.characteristics() & ~Spliterator.SIZED);
+
+            this.spliterator1 = spliterator1;
+            this.spliterator2 = spliterator2;
+            this.mapper = mapper;
+            this.tkExtractor = tkExtractor;
+            this.ukExtractor = ukExtractor;
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super R> action) {
+            if(mappedValues == null) {
+                fillMappedValues();
+            }
+
+            if(advanceInSpliterator1(action)) {
+                return true;
+            }
+
+            return advanceInMappedValuesSpliterator(action);
+        }
+
+        private boolean advanceInMappedValuesSpliterator(Consumer<? super R> action) {
+            if(mappedValuesSpliterator == null)
+                mappedValuesSpliterator = mappedValues.values().stream().filter(p -> p.t == null).spliterator();
+
+            return mappedValuesSpliterator.tryAdvance(pair -> action.accept(mapper.apply(pair.t, pair.u)));
+        }
+
+        private boolean advanceInSpliterator1(Consumer<? super R> action) {
+            final boolean[] joined = {false};
+            while (spliterator1.tryAdvance(t -> joined[0] = joinPair(t, action)) && !joined[0]);
+            return joined[0];
+        }
+
+        private boolean joinPair(T t, Consumer<? super R> action) {
+            final K key = tkExtractor.apply(t);
+            Pair<T, U> pair = mappedValues.get(key);
+            if(pair != null) {
+                if(pair.t == null) {
+                    pair.t = t;
+                } else {
+                    // repeated value
+                    return false;
+                }
+            } else {
+                pair = new Pair<>(t, null);
+                mappedValues.put(key, pair);
+            }
+            action.accept(mapper.apply(pair.t, pair.u));
+            return true;
+
+        }
+
+        private void fillMappedValues() {
+            mappedValues = new HashMap<>();
+            while (spliterator2.tryAdvance(u -> mappedValues.putIfAbsent(ukExtractor.apply(u), new Pair<>(null, u))));
+        }
+
+        private class Pair<T, U> {
+            T t;
+            U u;
+
+            public Pair(T t, U u) {
+                this.t = t;
+                this.u = u;
+            }
         }
     }
 }

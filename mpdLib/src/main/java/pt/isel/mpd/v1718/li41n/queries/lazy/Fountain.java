@@ -1,6 +1,6 @@
 package pt.isel.mpd.v1718.li41n.queries.lazy;
 
-import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.*;
+import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.BaseIterator;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.sun.org.apache.xml.internal.security.keys.keyresolver.KeyResolver.iterator;
 import static java.util.Optional.empty;
 
 public interface Fountain<T> extends Advancer<T> {
