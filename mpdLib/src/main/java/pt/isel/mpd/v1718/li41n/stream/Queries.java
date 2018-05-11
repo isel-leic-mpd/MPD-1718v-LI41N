@@ -17,6 +17,13 @@ public class Queries {
         return StreamSupport.stream(new JoinSpliterator(str1.spliterator(), str2.spliterator(), mapper, tkExtractor, ukExtractor), false);
     }
 
+    public static <T, U, K, R> Stream<R> join1(Stream<T> str1, Stream<U> str2, BiFunction<T, U, R> mapper, Function<T, K> tkExtractor, Function<U, K> ukExtractor) {
+        final Stream<Pair<T,U>> stream = StreamSupport.stream(new JoinInPairsSpliterator(str1.spliterator(), str2.spliterator(),  tkExtractor, ukExtractor), false)
+                .distinct();
+        return stream
+                .map(pair -> mapper.apply(pair.t, pair.u));
+    }
+
 
     private static class CollapseSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
 
@@ -117,14 +124,54 @@ public class Queries {
             while (spliterator2.tryAdvance(u -> mappedValues.putIfAbsent(ukExtractor.apply(u), new Pair<>(null, u))));
         }
 
-        private class Pair<T, U> {
-            T t;
-            U u;
+    }
 
-            public Pair(T t, U u) {
-                this.t = t;
-                this.u = u;
-            }
+    private static class JoinInPairsSpliterator<T, U, K> extends Spliterators.AbstractSpliterator<Pair<T,U>> {
+        private final Spliterator<T> spliterator1;
+        private final Spliterator<U> spliterator2;
+
+        private final Function<T, K> tkExtractor;
+        private final Function<U, K> ukExtractor;
+        private Map<K, Pair<T, U>> mappedValues;
+        private Spliterator<Pair<T, U>> mappedValuesSpliterator;
+
+
+        public JoinInPairsSpliterator(Spliterator<T> spliterator1, Spliterator<U> spliterator2, Function<T, K> tkExtractor, Function<U, K> ukExtractor) {
+            super(spliterator1.estimateSize()+spliterator2.estimateSize(), spliterator1.characteristics() & spliterator2.characteristics() & ~Spliterator.SIZED);
+
+            this.spliterator1 = spliterator1;
+            this.spliterator2 = spliterator2;
+            this.tkExtractor = tkExtractor;
+            this.ukExtractor = ukExtractor;
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super Pair<T,U>> action) {
+            return false;
+        }
+
+    }
+
+    private static class Pair<T, U> {
+        public T t;
+        public U u;
+
+        public Pair(T t, U u) {
+            this.t = t;
+            this.u = u;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            // TODO
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            // TODO
+            return 0;
         }
     }
+
 }
