@@ -4,10 +4,17 @@ package pt.isel.mpd.v1718.li41n.misc.streams;
 import org.junit.Test;
 import pt.isel.mpd.v1718.li41n.stream.ListCollector;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static junit.framework.TestCase.assertEquals;
@@ -23,7 +30,7 @@ public class CollectorsTest {
             "Leo magnis enim rhoncus eni! Cursus nullam? Maecenas risus et odio elit hymenaeos ac ve taciti hymenaeos vestibulum adipiscing erat. Neque nostra eu torquent. Duis auctor id senectus blandit sodales taciti ac ac sit erat ad sollicitudin lobortis.\n" +
             "\n" +
             "Ve tellus mus adipiscing aliquet volutpat hymenaeos duis lorem urna aenean venenatis diam pellentesque sed cubilia. Morbi elit lorem. Hymenaeos donec erat dolor. Nulla elit primis phasellus ante commodo nisi tristique risus felis. Ad arcu tempus nonummy sit habitasse ac tristique tortor dictum lectus aptent! Fames ad nunc mauris placerat conubia adipiscing eget senectus potenti hendrerit congue magna rutrum penatibus. Senectus vivamus tempor dis posuere. Convallis eni convallis. Aenean inceptos per lacus pretium proin felis feugiat eni potenti ipsum euismod ac egestas venenatis. Aliquam velit mi class tellus facilisi sodales potenti nullam vestibulum proin malesuada quis. Sem congue phasellus scelerisque malesuada massa per erat ante.";
-    private String WORD_SEPARATOR_REG_EXP =  "[,|(\\s+)|\\.|!|\\?]";
+    private String WORD_SEPARATOR_REG_EXP = "[,|(\\s+)|\\.|!|\\?]";
 
     private final String[] words = loremIpsum.split(WORD_SEPARATOR_REG_EXP);
 
@@ -39,9 +46,9 @@ public class CollectorsTest {
 //                .collect(Collectors.toList())
 
                 src
-                .stream()
-                .parallel()
-                .collect(new ListCollector<>());
+                        .stream()
+                        .parallel()
+                        .collect(new ListCollector<>());
 
         assertEquals(MAX, res.size());
 
@@ -152,7 +159,8 @@ public class CollectorsTest {
                 .collect(groupingBy(String::length));
 
     }
-        @Test
+
+    @Test
     public void shouldGroupByStringSizeAndCount() {
         // String -> Map<Integer, List<String>>>
 
@@ -186,6 +194,82 @@ public class CollectorsTest {
 
         String str = res.entrySet().stream().map(Object::toString).collect(joining(","));
         System.out.println(str);
+    }
+
+    @Test
+    public void shouldGroupByFirstCharValueIsTheLargestWord() {
+        Map<Character, String> res = Arrays.stream(words).collect(
+                groupingBy(s -> s.length() != 0 ? s.toLowerCase().charAt(0) : '#',
+                        collectingAndThen(
+                                reducing((s1, s2) -> s1.length() > s2.length() ? s1 : s2),
+                                Optional::get
+                        )
+                )
+        );
+
+
+        // And now... Something completelly different!!!
+//        Map<Character, String> res1 = Arrays.stream(words).collect(
+//                groupingBy(s -> s.length() != 0 ? s.toLowerCase().charAt(0) : '#',
+//                        collectingAndThen(
+//                                maxBy(comparingInt(String::length)),
+//                                Optional::get
+//                        )
+//                )
+//        );
+        String str = res.entrySet().stream().map(Object::toString).collect(joining(","));
+        System.out.println(str);
+    }
+
+    @Test
+    public void shouldCountTheNumberOfCommonWordsInTwoFiles() throws IOException {
+        // Step 1: Get the file words stream
+        String FILE1 = ClassLoader.getSystemResource("file1.txt").getFile().replace("%20", " ");
+        Stream<String> words1 = Files.lines(Paths.get(FILE1))
+                .flatMap(s -> Arrays.stream(s.split(WORD_SEPARATOR_REG_EXP)))
+                ;
+        String FILE2 = ClassLoader.getSystemResource("file2.txt").getFile().replace("%20", " ");
+
+        Stream<String> words2 = Files.lines(Paths.get(FILE2))
+                .flatMap(s -> Arrays.stream(s.split(WORD_SEPARATOR_REG_EXP)))
+                ;
+
+
+//        words1 = asList("abc", "ab", "abc", "ab", "abd").stream();
+//        words2 = asList("abc", "abc", "abd", "def", "de", "defg", "ab").stream();
+
+        // Step 2: Group each words and count its number of occurrences
+        Map<String, Long> words1Count = words1.collect(
+                groupingBy(identity(), counting())
+        );
+
+        Map<String, Long> words2Count = words2.collect(
+                groupingBy(identity(), counting())
+        );
+
+
+        // Step 3: Join all words from both files (without repetition in each file,
+        // meaning a word occurs only once or twice in the resulting stream)
+        Map<String, Long> allWords = Stream.concat(words1Count.keySet().stream(), words2Count.keySet().stream())
+            .collect(groupingBy(identity(), counting()))
+        ;
+
+        // Step 4: Filter all words with two occurrences (means the exist at least once in both files)
+        final Stream<String> commonWordsOccurrences = allWords.entrySet().stream().
+                filter(e -> e.getValue() == 2)
+                .map(Map.Entry::getKey);
+
+        // Step 5: Get the desired result, transforming the filtered stream in a map
+        // where the key is the string and the value is the sum of its occurrences in
+        // both files
+        final Map<String, Long> res = commonWordsOccurrences.collect(
+                toMap(identity(), s -> words1Count.get(s) + words2Count.get(s))
+        );
+
+        String str = res.entrySet().stream().map(Object::toString).collect(joining(","));
+        System.out.println(str);
+
+
     }
 }
 
