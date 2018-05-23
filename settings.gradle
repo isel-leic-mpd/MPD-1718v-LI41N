@@ -10,3 +10,4 @@
 rootProject.name = 'LI41N'
 include 'app'
 include 'mpdLib'
+include 'mpdLibAsync'

@@ -1,15 +1,16 @@
 package pt.isel.mpd.v1718.li41n.queries;
 
-import com.sun.tools.javac.util.List;
 import org.junit.Test;
 import pt.isel.mpd.v1718.li41n.queries.eager.QueriesEager;
 
 import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class QueriesEagerTest {
-    private static Collection<String> elements = List.of("Sport", "Lisboa", "e", "Benfica");
+    private static Collection<String> elements = asList("Sport", "Lisboa", "e", "Benfica");
 
 
     @Test

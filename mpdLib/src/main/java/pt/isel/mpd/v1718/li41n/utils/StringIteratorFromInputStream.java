@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 
 /**
- * Creates an {@link Iterator <String>} from an {@link InputStream} creating a {@link BufferedReader}
+ * Creates an {@link Iterator} from an {@link InputStream} creating a {@link BufferedReader}
  * to read the stream chars. Only use instances of this class, when you are sure the
  * {@link InputStream} represents contains strings and not binary content.
  */

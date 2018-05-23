@@ -5,7 +5,7 @@ import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.FilterIterator;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.LimitIterator;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.MapIterator;
 import pt.isel.mpd.v1718.li41n.queries.lazy.iterators.SkipIterator;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 
 import java.util.*;
 import java.util.function.Function;
@@ -33,7 +33,7 @@ public class QueriesLazy  {
     }
 
     public static <T, K> Map<K, Collection<T>> groupBy(Collection<T> coll, Function<T, K> keyExtractor) {
-        throw new NotImplementedException();
+        return null;
     }
 
 
