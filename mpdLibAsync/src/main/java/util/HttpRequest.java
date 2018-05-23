@@ -1,23 +1,24 @@
 package util;
 
-import com.google.common.util.concurrent.Futures;
-import football.exceptions.FootballWebApiException;
-import org.asynchttpclient.*;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.Response;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
+
+import static util.Logging.log;
 
 public class HttpRequest implements IRequest {
     private static final AsyncHttpClient asyncHttpClient = Dsl.asyncHttpClient();
 
     @Override
-    public Future<String> getBody(String url) {
-        try {
-            final Response response = asyncHttpClient.executeRequest(Dsl.get(url).build()).get();
-            return Futures.immediateFuture(response.getResponseBody());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+    public CompletableFuture<String> getBody(String url) {
+        log("getBody");
+
+        return asyncHttpClient.prepareGet(url)
+                .execute().toCompletableFuture()
+                .thenApply(r -> { log("responseBody"); return r; })
+                .thenApply(Response::getResponseBody);
 
 
     }

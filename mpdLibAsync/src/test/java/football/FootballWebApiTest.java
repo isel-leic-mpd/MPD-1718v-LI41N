@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static util.Logging.log;
 
 
 public class FootballWebApiTest {
@@ -23,6 +24,7 @@ public class FootballWebApiTest {
     @Test
     public void shouldGetAllLeaguesDto() throws ExecutionException, InterruptedException, FootballWebApiException {
         // Act
+        log("shouldGetAllLeaguesDto");
         Stream<LeagueDto> leaguesStream = api.getLeagues().get();
 
         // Assert

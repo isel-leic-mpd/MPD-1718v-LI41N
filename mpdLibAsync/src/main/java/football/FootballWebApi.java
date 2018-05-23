@@ -8,9 +8,12 @@ import util.IRequest;
 import util.MyImmediateFuture;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
+
+import static util.Logging.log;
 
 
 /**
@@ -28,28 +31,15 @@ public class FootballWebApi {
         this.req = req;
     }
 
-    public Future<Stream<LeagueDto>> getLeagues() throws FootballWebApiException {
+    public CompletableFuture<Stream<LeagueDto>> getLeagues() throws FootballWebApiException {
+        log("getLeagues");
         // Get the url response String
-        Future<String> resp = req.getBody(COMPETITIONS_URL);
-
-
-        try {
-            // Wait for the response string to be available
-            final String respStr = resp.get();
-
-            // Map String to Stream<LeagueDtos>
-            final Stream<LeagueDto> leagueDtosStream = getLeagueDtos(respStr);
-
-
-            // Create and return Future
-            return new MyImmediateFuture(leagueDtosStream);
-
-        } catch (InterruptedException | ExecutionException e) {
-            throw new FootballWebApiException(e);
-        }
+        return req.getBody(COMPETITIONS_URL)
+                .thenApply(this::getLeagueDtos);
     }
 
-    private Stream<LeagueDto> getLeagueDtos(String resp) throws InterruptedException, ExecutionException {
+    private Stream<LeagueDto> getLeagueDtos(String resp) {
+        log("getLeagueDtos");
         return Arrays.stream(gson.fromJson(resp, LeagueDto[].class));
     }
 }
