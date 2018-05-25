@@ -1,6 +1,5 @@
 package football;
 
-import football.FootballWebApi;
 import football.dto.LeagueDto;
 import football.exceptions.FootballWebApiException;
 import org.junit.Test;

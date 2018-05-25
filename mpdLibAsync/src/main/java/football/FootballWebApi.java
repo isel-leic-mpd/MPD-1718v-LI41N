@@ -1,16 +1,12 @@
 package football;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.gson.Gson;
+import football.dto.LeagueTableDto;
 import football.dto.LeagueDto;
-import football.exceptions.FootballWebApiException;
 import util.IRequest;
-import util.MyImmediateFuture;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 import static util.Logging.log;
@@ -23,6 +19,8 @@ import static util.Logging.log;
 public class FootballWebApi {
     private final static String BASE_URL = "https://www.football-data.org/v1/";
     private final static String COMPETITIONS_URL = BASE_URL + "competitions";
+
+    private static final String LEAGUE_TABLE_URL = BASE_URL + "competitions/{0}/leagueTable";
     private final static Gson gson = new Gson();
     private IRequest req;
 
@@ -31,15 +29,23 @@ public class FootballWebApi {
         this.req = req;
     }
 
-    public CompletableFuture<Stream<LeagueDto>> getLeagues() throws FootballWebApiException {
+    public CompletableFuture<Stream<LeagueDto>> getLeagues() {
         log("getLeagues");
         // Get the url response String
         return req.getBody(COMPETITIONS_URL)
-                .thenApply(this::getLeagueDtos);
+                .thenApply(this::getDtoStream);
     }
 
-    private Stream<LeagueDto> getLeagueDtos(String resp) {
-        log("getLeagueDtos");
+    public CompletableFuture<LeagueTableDto> getStandings(int leagueId) {
+//        req.getBody(MessageFormat.format(LEAGUE_TABLE_URL, leagueId))
+//                .thenApply();
+
+        return null;
+
+    }
+
+    private Stream<LeagueDto> getDtoStream(String resp) {
+        log("getDtoStream");
         return Arrays.stream(gson.fromJson(resp, LeagueDto[].class));
     }
 }
