@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+
 public class FootballService {
     private FootballWebApi api;
 
@@ -16,15 +18,48 @@ public class FootballService {
         this.api = api;
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues2() {
         return api.getLeagues()
                 .thenCompose(this::processLeagues);
+    }
 
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues1() {
+        final CompletableFuture<Stream<LeagueDto>> leagues = api.getLeagues();
+        return leagues     // CompletableFuture<Stream<LeagueDto>>
+                .thenApply(leagueDtoStream ->
+                            leagueDtoStream                             // Stream<LeagueDto>
+                                    .map(l -> api.getLeagueTable(l.id))   // Stream<CompletableFuture<LeagueTableDto>>
+                                    .collect(toList()).stream()
+                                    .map(CompletableFuture::join)       // Stream<LeagueTableDto>
+                                    .map(this::convertLeagueTableDtoToStanding) // // Stream<Standing>
+                );
+    }
+
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
+        final CompletableFuture<Stream<LeagueDto>> leagues = api.getLeagues();
+        return leagues     // CompletableFuture<Stream<LeagueDto>>
+                // CompletableFuture<Stream<CompletableFuture<LeagueTableDto>>>
+            .thenApply(leagueDtoStream -> leagueDtoStream.map(l -> api.getLeagueTable(l.id))
+                    .collect(toList()).stream())
+            // CompletableFuture<Stream<LeagueTableDto>>
+            .thenApply(completableFutureStream -> completableFutureStream.map(CompletableFuture::join))
+             // CompletableFuture<Stream<Standing>>
+             .thenApply(leagueTableDtoStream -> leagueTableDtoStream.map(this::convertLeagueTableDtoToStanding))
+
+        ;
+
+
+//        // Stream<LeagueDto>
+//        // Stream<CompletableFuture<LeagueTableDto>>
+//                                .collect(toList()).stream()
+//                .map(CompletableFuture::join)       // Stream<LeagueTableDto>
+//                .map(this::convertLeagueTableDtoToStanding) // // Stream<Standing>
     }
 
     private CompletableFuture<Stream<Standing>> processLeagues(Stream<LeagueDto> leagueDtoStream) {
 
-        final Stream<CompletableFuture<LeagueTableDto>> completableFutureStream = leagueDtoStream.map(l -> api.getStandings(l.id));
+        final Stream<CompletableFuture<LeagueTableDto>> completableFutureStream =
+                leagueDtoStream.map(l -> api.getLeagueTable(l.id));
 
         final CompletableFuture<LeagueTableDto>[] leagueTableFutures =
                 completableFutureStream

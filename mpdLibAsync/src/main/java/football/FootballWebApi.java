@@ -48,14 +48,14 @@ public class FootballWebApi {
                 .thenApply(this::toLeagueDtoStream);
     }
 
-    public CompletableFuture<LeagueTableDto> getStandings(int leagueId) {
+    public CompletableFuture<LeagueTableDto> getLeagueTable(int leagueId) {
         return req.getBody(MessageFormat.format(LEAGUE_TABLE_URL, leagueId), headarsMap)
                 .thenApply(this::toLeagueTableDto);
 
     }
 
     private LeagueTableDto toLeagueTableDto(String jsonStr) {
-        log("toLeagueDtoStream");
+        log("toLeagueTableDto");
         final LeagueTableDto leagueTableDto = gson.fromJson(jsonStr, LeagueTableDto.class);
         return leagueTableDto;
     }

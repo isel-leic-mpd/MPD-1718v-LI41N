@@ -1,7 +1,6 @@
 package util;
 
 import java.text.MessageFormat;
-import java.util.Objects;
 
 public final class Logging {
     private Logging() {

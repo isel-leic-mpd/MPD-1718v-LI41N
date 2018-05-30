@@ -5,13 +5,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import util.HttpRequest;
 import util.IRequest;
-import util.Logging;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static util.Logging.log;
 
 public class FootballServiceTest {
 
@@ -21,14 +21,16 @@ public class FootballServiceTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
 
-        FootballWebApi api = new FootballWebApi(FootballServiceTest.getIRequestWithLog(new HttpRequest()));
+        //final IRequest iRequest = FootballServiceTest.getIRequestWithLog(new HttpRequest());
+        final IRequest iRequest = new HttpRequest();
+        FootballWebApi api = new FootballWebApi(iRequest);
         footballService = new FootballService(api);
 
     }
 
     private static IRequest getIRequestWithLog(IRequest httpRequest) {
         return (url, headers) -> {
-            Logging.log("Requesting url {0} with headers {1}", url, headers);
+            log("Requesting url {0} with headers {1}", url, headers);
             return httpRequest.getBody(url, headers);
 
         };
@@ -39,7 +41,10 @@ public class FootballServiceTest {
     public void shouldGetFirstPlaceTeamOnALlLeagues() {
 
         // Act
-        List<Standing> standings = footballService.getFirstPlaceOnALlLeagues().join().collect(toList());
+        List<Standing> standings = footballService.getFirstPlaceOnALlLeagues()
+                .join()
+                .peek(s -> log(s.toString()))
+                .collect(toList());
 
         // Assert
 
@@ -47,7 +52,7 @@ public class FootballServiceTest {
         int NUM_LEAGUES = 17;
         assertEquals(NUM_LEAGUES, standings.size());
 
-        standings.forEach(System.out::println);
+        //standings.forEach(System.out::println);
 
 
 

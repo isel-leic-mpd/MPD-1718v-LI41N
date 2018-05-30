@@ -41,7 +41,7 @@ public class FootballWebApiTest {
     public void shouldGetLeaguesTableDto() throws ExecutionException, InterruptedException, FootballWebApiException {
         // Act
         final Stream<CompletableFuture<LeagueTableDto>> completableFutureStream =
-                IntStream.range(444, 450).mapToObj(api::getStandings);
+                IntStream.range(444, 450).mapToObj(api::getLeagueTable);
 
 
 
