@@ -1,13 +1,16 @@
 package football;
 
 import football.dto.LeagueDto;
+import football.dto.LeagueTableDto;
 import football.exceptions.FootballWebApiException;
 import org.junit.Test;
 import util.HttpRequest;
 import util.IRequest;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -32,5 +35,17 @@ public class FootballWebApiTest {
 
         int NUM_LEAGUES = 17;
         assertEquals(NUM_LEAGUES, leagues.size());
+    }
+
+    @Test
+    public void shouldGetLeaguesTableDto() throws ExecutionException, InterruptedException, FootballWebApiException {
+        // Act
+        final Stream<CompletableFuture<LeagueTableDto>> completableFutureStream =
+                IntStream.range(444, 450).mapToObj(api::getStandings);
+
+
+
+        // Assert
+
     }
 }
