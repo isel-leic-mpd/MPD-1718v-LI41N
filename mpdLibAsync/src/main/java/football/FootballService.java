@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static util.Logging.log;
 
 public class FootballService {
     private FootballWebApi api;
@@ -18,24 +19,26 @@ public class FootballService {
         this.api = api;
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues2() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues1() {
         return api.getLeagues()
                 .thenCompose(this::processLeagues);
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues1() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
         final CompletableFuture<Stream<LeagueDto>> leagues = api.getLeagues();
         return leagues     // CompletableFuture<Stream<LeagueDto>>
                 .thenApply(leagueDtoStream ->
                             leagueDtoStream                             // Stream<LeagueDto>
                                     .map(l -> api.getLeagueTable(l.id))   // Stream<CompletableFuture<LeagueTableDto>>
                                     .collect(toList()).stream()
+                                    .peek(__ -> log("before join"))
                                     .map(CompletableFuture::join)       // Stream<LeagueTableDto>
+                                    .peek(__ -> log("after join"))
                                     .map(this::convertLeagueTableDtoToStanding) // // Stream<Standing>
                 );
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues2() {
         final CompletableFuture<Stream<LeagueDto>> leagues = api.getLeagues();
         return leagues     // CompletableFuture<Stream<LeagueDto>>
                 // CompletableFuture<Stream<CompletableFuture<LeagueTableDto>>>
