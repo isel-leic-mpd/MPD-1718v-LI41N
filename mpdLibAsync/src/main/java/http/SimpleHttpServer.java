@@ -6,7 +6,6 @@ import io.vertx.core.http.HttpServerResponse;
 import util.Logging;
 
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 public class SimpleHttpServer {
 

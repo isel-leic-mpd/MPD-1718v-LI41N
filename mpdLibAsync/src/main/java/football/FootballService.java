@@ -4,11 +4,14 @@ import football.dto.LeagueDto;
 import football.dto.LeagueTableDto;
 import football.dto.StandingDto;
 import football.model.Standing;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.RoutingContext;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static util.Logging.log;
 
@@ -19,12 +22,12 @@ public class FootballService {
         this.api = api;
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues1() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
         return api.getLeagues()
                 .thenCompose(this::processLeagues);
     }
 
-    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues() {
+    public CompletableFuture<Stream<Standing>> getFirstPlaceOnALlLeagues1() {
         final CompletableFuture<Stream<LeagueDto>> leagues = api.getLeagues();
         return leagues     // CompletableFuture<Stream<LeagueDto>>
                 .thenApply(leagueDtoStream ->

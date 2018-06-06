@@ -51,15 +51,17 @@ public class FootballServiceTest {
         assertNotNull(standings);
         int NUM_LEAGUES = 17;
         assertEquals(NUM_LEAGUES, standings.size());
-
-        //standings.forEach(System.out::println);
-
-
-
-
-
-
-
     }
 
+    @Test
+    public void shouldGetFirstPlaceTeamOnALlLeaguesWithContinuation() {
+
+        // Act
+        footballService.getFirstPlaceOnALlLeagues()
+                .thenAccept(standingStream ->
+                        standingStream.peek(s -> log(s.toString()))
+                                .collect(toList()))
+                .join();
+
+    }
 }
